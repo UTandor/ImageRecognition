@@ -5,7 +5,7 @@ import Webcam from "react-webcam";
 import {
   Aperture,
   Camera,
-  FlipHorizontal,
+  SwitchCamera,
   RefreshCcw,
   Wand2,
 } from "lucide-react";
@@ -19,14 +19,16 @@ function App() {
 
   return (
     <div className="">
-      {!showCamera && <Button
-        variant={"default"}
-        className="fixed bottom-5 right-5 w-12 h-12"
-        size={"icon"}
-        onClick={toggleCamera}
-      >
-        <Camera />
-      </Button>}
+      {!showCamera && (
+        <Button
+          variant={"default"}
+          className="fixed bottom-5 right-5 w-12 h-12"
+          size={"icon"}
+          onClick={toggleCamera}
+        >
+          <Camera />
+        </Button>
+      )}
 
       {showCamera ? <CustomWebcam /> : <WebCamNo />}
     </div>
@@ -56,7 +58,6 @@ const CustomWebcam = () => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [mirrored, setMirrored] = useState(true);
   const [caption, setCaption] = useState<string | null>(null);
 
   const capture = useCallback(() => {
@@ -68,10 +69,6 @@ const CustomWebcam = () => {
 
   const retake = () => {
     setImgSrc(null);
-  };
-
-  const mirror = () => {
-    setMirrored(!mirrored);
   };
 
   const captionate = async () => {
@@ -117,6 +114,17 @@ const CustomWebcam = () => {
   let webcamHeight = height;
   console.log(windowSize);
 
+  const [facingMode, setFacingMode] = useState("user");
+
+  const toggleFacingMode = () => {
+    const newFacingMode = facingMode === "user" ? "environment" : "user";
+    setFacingMode(newFacingMode);
+  };
+
+  const videoConstraints = {
+    facingMode: facingMode,
+  };
+
   return (
     <div className="flex h-screen bg-foreground text-primary-foreground  flex-col space-y-20 items-center justify-center p-0">
       <div className="flex  flex-col justify-center items-center space-y-4">
@@ -127,8 +135,8 @@ const CustomWebcam = () => {
             className="opacity-80"
             height={webcamWidth}
             width={webcamHeight}
+            videoConstraints={videoConstraints}
             audio={false}
-            mirrored={mirrored}
             ref={(webcam) => {
               if (webcam) {
                 webcamRef.current = webcam;
@@ -151,8 +159,8 @@ const CustomWebcam = () => {
             <Button onClick={capture}>
               <Aperture />
             </Button>
-            <Button onClick={mirror}>
-              <FlipHorizontal />
+            <Button onClick={toggleFacingMode}>
+              <SwitchCamera />
             </Button>
           </div>
         )}
